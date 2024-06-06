@@ -30,7 +30,7 @@ const PlayVideo = ({videoId}) => {
         <div className="play-video-info">
             <p>{apiData?value_converter(apiData.statistics.viewCount):"16k"} &bull;{ apiData?moment(apiData.snippet.publishedAt).fromNow():""}</p>
             <div>
-                <span><img src={like} alt="" />125</span>
+                <span><img src={like} alt="" />({apiData?value_converter(apiData.statistics.likeCount:155)})</span>
                 <span><img src={dislike} alt="" />25</span>
                 <span><img src={share} alt="" />share</span>
                 <span><img src={save} alt="" />save</span>
