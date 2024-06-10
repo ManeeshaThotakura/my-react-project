@@ -13,10 +13,18 @@ import moment from 'moment';
 
 const PlayVideo = ({videoId}) => {
     const [apiData,setApiData]=useState(null);
+    const[channelData,setChannelData]=useState(null);
+
     const fetchVideoData = async ()=>{
         //fetching videos data
         const videoDetails_url = `https:youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`;
         await fetch(videoDetails_url).then(res=>res.json()).then(data=>setApiData(data.items[0]));
+    }
+    const fetchOtherData = async ()=>{
+        //Fetching Channel Data
+        const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet,channelId}&key=${API_KEY}`;
+        await fetch(channelData_url)
+        `
     }
     useEffect(()=>{
         fetchVideoData();
@@ -30,8 +38,8 @@ const PlayVideo = ({videoId}) => {
         <div className="play-video-info">
             <p>{apiData?value_converter(apiData.statistics.viewCount):"16k"} &bull;{ apiData?moment(apiData.snippet.publishedAt).fromNow():""}</p>
             <div>
-                <span><img src={like} alt="" />({apiData?value_converter(apiData.statistics.likeCount:155)})</span>
-                <span><img src={dislike} alt="" />25</span>
+            <span><img src={like} alt="" /> {apiData?value_converter(apiData.statistics.likeCount):155}</span>
+                <span><img src={dislike} alt="" /></span>
                 <span><img src={share} alt="" />share</span>
                 <span><img src={save} alt="" />save</span>
             </div>
@@ -40,16 +48,16 @@ const PlayVideo = ({videoId}) => {
         <div className="publisher">
             <img src={jack} alt="" />
             <div>
-                <p>Esha</p>
+                <p>{apiData?apiData.snippet.channelTitle:""}</p>
                 <span>1M Subscribers</span>
 
             </div>
             <button>Subscribe</button>
         </div>
         <div className="vid-discription">
-            <p>Subscribe Esha to watch more video</p>
+            <p>{apiData?apiData.snippet.description.slice(0,250):"Description Here"}</p>
             <hr/>
-            <h4>130 commands</h4>
+            <h4>{apiData?value_converter(apiData.statistics.commentCount):102}comments</h4>
             <div className="comment">
                 <img src={user_profile} alt="" />
                 <div>
