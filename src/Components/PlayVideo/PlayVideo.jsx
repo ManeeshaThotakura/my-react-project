@@ -10,10 +10,12 @@ import save from '../../assets/save.png'
 import jack from '../../assets/jack.png'
 import user_profile from '../../assets/user_profile.jpg'
 import moment from 'moment';
+import { json } from 'react-router-dom';
 
 const PlayVideo = ({videoId}) => {
     const [apiData,setApiData]=useState(null);
     const[channelData,setChannelData]=useState(null);
+    const[commentData,setCommentData]=useState([]);
 
     const fetchVideoData = async ()=>{
         //fetching videos data
@@ -22,14 +24,20 @@ const PlayVideo = ({videoId}) => {
     }
     const fetchOtherData = async ()=>{
         //Fetching Channel Data
-        const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet,channelId}&key=${API_KEY}`;
-        await fetch(channelData_url)
-        `
+        const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet.channelId}&key=${API_KEY}`;
+        await fetch(channelData_url).then(res=>res.json()).then(data=>setChannelData(data.items[0]))
+        // fetching comment data
+        const comment_url=`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${videoId}&key=${API_KEY}`;
+        await fetch(comment_url).then(res=json()).then(data=>setCommentData(data.items))
     }
     useEffect(()=>{
         fetchVideoData();
  
     },[])
+    useEffect(()=>{
+        fetchOtherData();
+
+    },[apiData])
   return (
     <div className='play-video'>
        { /*<video src={video1} controls autoPlay muted></video>*/}
@@ -46,10 +54,10 @@ const PlayVideo = ({videoId}) => {
         </div>
         <hr />
         <div className="publisher">
-            <img src={jack} alt="" />
+            <img src={channelData?channelData.snippet.thumbnails.default.url:" "} alt="" />
             <div>
-                <p>{apiData?apiData.snippet.channelTitle:""}</p>
-                <span>1M Subscribers</span>
+                <p>{apiData?apiData.snippet.channelTitle:" "}</p>
+                <span>{channelData?value_converter(channelData.statistics.subscriberCount):"1M"}Subscribers</span>
 
             </div>
             <button>Subscribe</button>
@@ -58,7 +66,9 @@ const PlayVideo = ({videoId}) => {
             <p>{apiData?apiData.snippet.description.slice(0,250):"Description Here"}</p>
             <hr/>
             <h4>{apiData?value_converter(apiData.statistics.commentCount):102}comments</h4>
-            <div className="comment">
+            {commentData.map((item,index)=>{
+                return(
+                    <div key={index}className="comment">
                 <img src={user_profile} alt="" />
                 <div>
                     <h3>Maneesha <span> 1 day ago</span></h3>
@@ -71,45 +81,10 @@ const PlayVideo = ({videoId}) => {
                     </div>
                 </div>
             </div>
-            <div className="comment">
-                <img src={user_profile} alt="" />
-                <div>
-                    <h3>Maneesha <span> 1 day ago</span></h3>
-                    <p>Nice bro next video kosam waiting </p>
-                    <div className="comment-action">
-                        <img src={like} alt="" />
-                        <span>244</span>
-                        <img src={dislike} alt="" />
-                    
-                    </div>
-                </div>
-            </div>
-            <div className="comment">
-                <img src={user_profile} alt="" />
-                <div>
-                    <h3>Maneesha <span> 1 day ago</span></h3>
-                    <p>Nice bro next video kosam waiting </p>
-                    <div className="comment-action">
-                        <img src={like} alt="" />
-                        <span>244</span>
-                        <img src={dislike} alt="" />
-                    
-                    </div>
-                </div>
-            </div>
-            <div className="comment">
-                <img src={user_profile} alt="" />
-                <div>
-                    <h3>Maneesha <span> 1 day ago</span></h3>
-                    <p>Nice bro next video kosam waiting </p>
-                    <div className="comment-action">
-                        <img src={like} alt="" />
-                        <span>244</span>
-                        <img src={dislike} alt="" />
-                    
-                    </div>
-                </div>
-            </div>
+
+
+                )
+            })}
         </div>
      
        
