@@ -14,21 +14,28 @@ import { json } from 'react-router-dom';
 
 const PlayVideo = ({videoId}) => {
     const [apiData,setApiData]=useState(null);
-    const[channelData,setChannelData]=useState(null);
-    const[commentData,setCommentData]=useState([]);
-
+    const [channelData,setChannelData]=useState(null);
+    const [commentData,setCommentData]=useState([]);
+    
     const fetchVideoData = async ()=>{
         //fetching videos data
         const videoDetails_url = `https:youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`;
         await fetch(videoDetails_url).then(res=>res.json()).then(data=>setApiData(data.items[0]));
+        
     }
     const fetchOtherData = async ()=>{
         //Fetching Channel Data
+        if (!apiData) return; // Ensure apiData is available before fetching other data
         const channelData_url = `https://youtube.googleapis.com/youtube/v3/channels?part=snippet%2CcontentDetails%2Cstatistics&id=${apiData.snippet.channelId}&key=${API_KEY}`;
-        await fetch(channelData_url).then(res=>res.json()).then(data=>setChannelData(data.items[0]))
-        // fetching comment data
-        const comment_url=`https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&videoId=${videoId}&key=${API_KEY}`;
-        await fetch(comment_url).then(res=>res=json()).then(data=>setCommentData(data.items))
+        const channelResponse = await fetch(channelData_url);
+        const channelData = await channelResponse.json();
+        setChannelData(channelData.items[0]);
+        // Comment data
+        const comment_url = `https://youtube.googleapis.com/youtube/v3/commentThreads?part=snippet%2Creplies&maxResults=50&videoId=${videoId}&key=${API_KEY}`;
+        const commentResponse = await fetch(comment_url);
+        const commentData = await commentResponse.json();
+        setCommentData(commentData.items);
+        
     }
     useEffect(()=>{
         fetchVideoData();
@@ -40,6 +47,7 @@ const PlayVideo = ({videoId}) => {
         }
 
     },[apiData]);
+    
   return (
     <div className='play-video'>
        { /*<video src={video1} controls autoPlay muted></video>*/}
@@ -64,22 +72,25 @@ const PlayVideo = ({videoId}) => {
             </div>
             <button>Subscribe</button>
         </div>
+        
         <div className="vid-discription">
             <p>{apiData?apiData.snippet.description.slice(0,250):"Description Here"}</p>
             <hr/>
             <h4>{apiData?value_converter(apiData.statistics.commentCount):102}comments</h4>
-            {commentData.map((item,index)=>{
+            {commentData.map((item,index) => {
+
                 return(
-                    <div key={index}className="comment">
-                <img src={user_profile} alt="" />
-                <div>
-                    <h3>Maneesha <span> 1 day ago</span></h3>
-                    <p>Nice bro next video kosam waiting </p>
-                    <div className="comment-action">
-                        <img src={like} alt="" />
-                        <span>244</span>
-                        <img src={dislike} alt="" />
                     
+                    <div key={index}className="comment">
+                <img src={item.snippet.topLevelComment.snippet.authorProfileImageUrl } alt="" />
+                <div>
+                            <h3>{item.snippet.topLevelComment.snippet.authorDisplayName}<span> 1 day ago</span></h3>
+                            <p>{item.snippet.topLevelComment.snippet.textDisplay}</p>
+                            <div className="comment-action">
+                                <img src={like} alt="" />
+                                <span>{value_converter(item.snippet.topLevelComment.snippet.likeCount)}</span>
+                                <img src={dislike} alt="" />
+
                     </div>
                 </div>
             </div>
@@ -88,7 +99,7 @@ const PlayVideo = ({videoId}) => {
                 )
             })}
         </div>
-     
+       
        
     </div>
   )
