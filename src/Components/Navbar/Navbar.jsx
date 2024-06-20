@@ -20,6 +20,7 @@ const Navbar = ({ setSidebar }) => {
     <div className="nav-middle flex-div">
         <div className="search-box flex-div">
         <input type="text" placeholder='search' />
+        https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key=[YOUR_API_KEY]
         <img src={search_icon} alt="" />
         </div>
     </div>
