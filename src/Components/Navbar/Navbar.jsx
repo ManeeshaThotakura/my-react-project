@@ -1,3 +1,4 @@
+import {useState,useEffect } from 'react';
 import React from 'react'
 import './Navbar.css'
 import menu_icon from '../../assets/menu.png'
@@ -8,7 +9,22 @@ import more_icon from '../../assets/more.png'
 import notification_icon from '../../assets/notification.png'
 import profile_icon from '../../assets/user_profile.jpg'
 import { Link } from 'react-router-dom'; 
+import {API_KEY} from '../../data'
+
 const Navbar = ({ setSidebar }) => {
+    const [screchdata,setscrechdata]=useState(null);
+    
+    const fetchscrechdata = async() =>{
+        const fetchscrechdata_url =`https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key=${API_KEY}`
+        await fetch(fetchscrechdata_url).then(res=>res.json()).then(data=>setscrechdata(data.items));
+        console.log(fetchscrechdata_url)
+
+    }
+    useEffect(()=>{
+        fetchscrechdata();
+       
+        },[])
+        
   return (
    <nav className= 'flex-div'>
     <div className= 'nav-left flex-div'>
@@ -20,7 +36,7 @@ const Navbar = ({ setSidebar }) => {
     <div className="nav-middle flex-div">
         <div className="search-box flex-div">
         <input type="text" placeholder='search' />
-        https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key=[YOUR_API_KEY]
+      
         <img src={search_icon} alt="" />
         </div>
     </div>
@@ -34,5 +50,6 @@ const Navbar = ({ setSidebar }) => {
    </nav>
   )
 }
+
 
 export default Navbar
