@@ -8,6 +8,7 @@ import  share from '../../assets/share.png'
 import save from '../../assets/save.png'
 import moment from 'moment';
 import { useParams} from 'react-router-dom'
+import axios from 'axios';
 
 const PlayVideo = () => {
     const {videoId} = useParams();
@@ -34,6 +35,21 @@ const PlayVideo = () => {
         const commentResponse = await fetch(comment_url);
         const commentData = await commentResponse.json();
         setCommentData(commentData.items);
+
+    const setLike = async ({setLikeCount,isLiked,likeCount,setIsLiked,isDisliked,setIsDisliked}) => {
+            if (!isLiked) {
+                try {
+                    const response = await axios.post(`https://youtube.googleapis.com/youtube/v3/videos/rate?key=${API_KEY}`);
+                    setLikeCount(likeCount + 1);
+                    setIsLiked(true);
+                    if (isDisliked) {
+                        setIsDisliked(false);
+                    }
+                } catch (error) {
+                    console.error('Error liking the item:', error);
+                }
+            }
+        };
         
     }
     useEffect(()=>{
@@ -87,6 +103,9 @@ const PlayVideo = () => {
                             <p>{item.snippet.topLevelComment.snippet.textDisplay}</p>
                             <div className="comment-action">
                                 <img src={like} alt="" />
+                                
+                                    <button onClick={setLike}>Like</button>
+            
                                 <span>{value_converter(item.snippet.topLevelComment.snippet.likeCount)}</span>
                                 <img src={dislike} alt="" />
 
